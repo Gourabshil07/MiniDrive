@@ -205,3 +205,19 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+# ================= MiniDrive Specific =================
+
+# SQLite databases
+*.db
+*.db-journal
+
+# Drive metadata / runtime files
+drive.json
+drive_meta.json
+
+# Backup / temp python files
+*.save
+*_backup.py
+
+# Uploaded content (if any local storage used later)
+uploads/
