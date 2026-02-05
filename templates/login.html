@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Welcome – MiniDrive</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Font Awesome -->
+  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
+
+  <!-- AUTH CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body>
+
+<div class="container">
+  <div class="forms-container">
+    <div class="signin-signup">
+
+      <!-- LOGIN -->
+      <form method="POST" action="/login" class="sign-in-form">
+        <h2 class="title">Sign in</h2>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <p class="flash">{{ messages[0] }}</p>
+          {% endif %}
+        {% endwith %}
+
+        <div class="input-field">
+          <i class="fas fa-user"></i>
+          <input type="text" name="username" placeholder="Username" required>
+        </div>
+
+        <div class="input-field">
+          <i class="fas fa-lock"></i>
+          <input type="password" name="password" placeholder="Password" required>
+        </div>
+
+        <input type="submit" value="Login" class="btn solid">
+      </form>
+
+      <!-- SIGNUP -->
+      <form method="POST"
+            action="{{ url_for('signup') }}"
+            class="sign-up-form"
+            id="signupForm">
+
+        <h2 class="title">Sign up</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                {% if category == "signup_error" %}
+                  <p class="flash error" id="signupFlash">{{ message }}</p>
+                {% endif %}
+            {% endfor %}
+        {% endwith %}
+
+        <div class="input-field">
+            <i class="fas fa-user"></i>
+            <input type="text" name="username" id="username" placeholder="Username" required>
+        </div>
+        <small id="usernameError" class="hint"></small>
+
+        <div class="input-field">
+            <i class="fas fa-lock"></i>
+            <input type="password" name="password" id="password" placeholder="Password" required>
+        </div>
+        <small id="passwordError" class="hint"></small>
+
+        <input type="submit" class="btn" value="Sign up">
+     </form>
+
+    
+
+    </div>
+  </div>
+
+  <!-- PANELS -->
+  <div class="panels-container">
+    <div class="panel left-panel">
+      <div class="content">
+        <h3>New here?</h3>
+        <p>Create your account and start using MiniDrive</p>
+        <button class="btn transparent" id="sign-up-btn">Sign up</button>
+      </div>
+      <img src="{{ url_for('static', filename='img/log.svg') }}" class="image">
+    </div>
+
+    <div class="panel right-panel">
+      <div class="content">
+        <h3>One of us?</h3>
+        <p>Login to access your files</p>
+        <button class="btn transparent" id="sign-in-btn">Sign in</button>
+      </div>
+      <img src="{{ url_for('static', filename='img/register.png') }}" class="image">
+    </div>
+  </div>
+</div>
+
+<!-- AUTH JS -->
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+
+</body>
+</html>

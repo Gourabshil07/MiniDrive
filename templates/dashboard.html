@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MiniDrive Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body class="light">
+
+<header class="topbar">
+  <div class="logo">MiniDrive</div>
+  <input type="text"
+    id="searchInput"
+    placeholder="Search files or folders...">
+  <span class="storage">
+   <i class="fa-solid fa-cloud-arrow-up"></i> Storage: <b id="storage">0 MB</b>
+  </span>
+  <a href="/logout" class="logout">Logout</a>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="menu active" onclick="openRoot()">📁 My Drive</div>
+
+    <button id="newBtn" class="new-btn">+ New</button>
+
+    <div class="dropdown" id="dropdown">
+
+      <div class="drop-item" onclick="openCreateModal()">
+        <span>📁 New folder</span>
+      </div>
+
+      <div class="drop-item" onclick="openFilePicker()">
+        📄 Upload file
+      </div>
+
+      <input
+        type="file"
+        id="mobileFileInput"
+        accept="image/*,video/*,.pdf,.doc,.docx,.zip"
+        capture="environment"
+        style="display:none"
+      />
+
+
+      <div class="drop-item">
+        <label onclick="event.stopPropagation()">
+          📂 Folder upload
+          <input
+            type="file"
+            hidden
+            webkitdirectory
+            multiple
+            onchange="uploadFolder(this)">
+        </label>
+      </div>
+
+    </div>
+
+    <div class="menu" onclick="openRecent()">🕒 Recent</div>
+    <div class="menu" onclick="openTrash()">🗑 Trash</div>
+    <div class="menu" onclick="toggleSettings(event)">⚙ Settings</div>
+
+    <div id="settingsPanel" class="settings-panel">
+      <p>Theme</p>
+      <button onclick="event.stopPropagation(); setLight()">☀ Light Mode</button>
+      <button onclick="event.stopPropagation(); setDark()">🌙 Dark Mode</button>
+
+    </div>
+
+    <!-- STORAGE STATUS -->
+    <div class="storage-panel">
+      <div class="storage-title">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        Storage
+      </div>
+
+
+      <div class="storage-bar">
+        <div class="storage-used" id="storageUsedBar"></div>
+      </div>
+
+      <div class="storage-text">
+        <span id="usedStorage">0 MB</span> of <span id="totalStorage">3 GB</span> used
+      </div>
+
+    </div>
+
+    <div class="admin-section">
+      {% if session.get("role") == "admin" %}
+        <hr class="sidebar-divider">
+
+        <p class="sidebar-label">ADMIN</p>
+
+        <a href="/admin"
+          class="admin-btn {% if request.path.startswith('/admin') %}active{% endif %}"
+          title="Manage users & storage">
+
+            <i class="fa-solid fa-user-shield"></i>
+            <span>Admin Panel</span>
+
+        </a>
+      {% endif %}
+    </div>
+
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- PATH BAR -->
+    <div class="path-bar">
+      <button class="back-btn" onclick="goBack()">⬅</button>
+      <div id="pathTitle" class="breadcrumb"></div>
+    </div>
+
+    <!--SCROLLABLE AREA ONLY -->
+    <div class="content-scroll">
+
+      <!-- FILE GRID -->
+      <div id="fileArea" class="file-grid"></div>
+
+      <!-- RECENT TABLE -->
+      <table id="recentTable" class="recent-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Modified</th>
+            <th>Owner</th>
+            <th>Size</th>
+          </tr>
+        </thead>
+        <tbody id="recentBody"></tbody>
+      </table>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- MODALS -->
+
+<div id="fileMenu" class="file-menu">
+  <button id="renameBtn" onclick="renameFile()">✏ Rename</button>
+  <button id="recoverBtn" onclick="recoverFile()">♻ Recover</button>
+  <button onclick="deleteFile()">🗑 Delete</button>
+  <button onclick="showDetails()">ℹ Details</button>
+</div>
+
+<div id="detailsModal" class="modal">
+  <div class="modal-box">
+    <h3>Details</h3>
+    <p id="detailName"></p>
+    <p id="detailSize"></p>
+    <p id="detailType"></p>
+    <p id="detailCreated"></p>
+    <p id="detailOwner"></p>
+    <div id="shareSection"></div>
+    <div id="downloadSection"></div>
+    <button onclick="closeDetails()">Close</button>
+  </div>
+</div>
+
+<div id="renameModal" class="modal">
+  <div class="modal-box">
+    <h3>Rename Item</h3>
+    <input type="text" id="renameInput" placeholder="Enter new name">
+
+    <div class="modal-actions">
+      <button onclick="confirmRename()">Rename</button>
+      <button onclick="closeRename()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!--ALERT MODAL -->
+
+<div id="alertModal" class="modal">
+  <div class="modal-box">
+    <h3 id="alertTitle">Notice</h3>
+
+    <p id="alertMessage" style="margin:15px 0; font-size:15px;"></p>
+
+    <div class="modal-actions">
+      <button onclick="closeAlert()">OK</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="deleteModal" class="modal">
+  <div class="modal-box">
+    <h3 style="color:#ef4444;">Delete Permanently</h3>
+
+    <p style="margin:15px 0; font-size:15px;">
+      This file will be permanently deleted.<br>
+      This action cannot be undone.
+    </p>
+
+    <div class="modal-actions">
+      <button onclick="confirmPermanentDelete()" style="background:#ef4444;color:white;">
+        Delete
+      </button>
+      <button onclick="closeDeleteModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <h3>Create Folder</h3>
+
+    <input
+      type="text"
+      id="folderName"
+      placeholder="Enter folder name"
+    >
+
+    <div class="modal-actions">
+      <button onclick="createFolder()">Create</button>
+      <button onclick="closeModal()">Cancel</button>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

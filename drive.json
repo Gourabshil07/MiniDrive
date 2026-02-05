@@ -1,0 +1,31 @@
+{
+  "recent": [
+    {
+      "type": "file",
+      "time": "1/27/2026, 5:55:51 PM",
+      "owner": "me"
+    },
+    {
+      "type": "file",
+      "time": "1/27/2026, 5:55:26 PM",
+      "owner": "me"
+    },
+    {
+      "type": "file",
+      "time": "1/27/2026, 5:55:08 PM",
+      "owner": "me"
+    },
+    {
+      "name": "a",
+      "owner": "me",
+      "size": "",
+      "time": "1/27/2026, 5:50:37 PM",
+      "type": "folder"
+    }
+  ],
+  "root": {
+    "a": {},
+    "undefined": {}
+  },
+  "trash": {}
+}
